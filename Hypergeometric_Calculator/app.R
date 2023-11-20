@@ -2,23 +2,24 @@ library(shiny)
 library(shinythemes)
 
 ui <- fluidPage(theme = shinytheme("sandstone"),
-  titlePanel("Hypergeometric Calculator"),
-  sidebarLayout(
-    sidebarPanel(
-      numericInput("deck_size", "Deck Size:", value = 60),
-      numericInput("num_copies_interest", "Number of Copies of Card:", value = 4),
-      numericInput("cards_drawn", "Cards Drawn:", value = 7),
-      numericInput("successes_wanted", "Successes Wanted:", value = 1),
-      actionButton("calculate", "Calculate"),
-      br(),
-      br(),
-      textOutput("result")
-    ),
-    mainPanel(
-      br(),
-      tableOutput("history_table")
-    )
-  )
+                titlePanel("Hypergeometric Calculator"),
+                sidebarLayout(
+                  sidebarPanel(
+                    numericInput("deck_size", "Deck Size:", value = 60),
+                    numericInput("num_copies_interest", "Number of Copies of Card:", value = 4),
+                    numericInput("cards_drawn", "Cards Drawn:", value = 7),
+                    numericInput("successes_wanted", "Successes Wanted:", value = 1),
+                    actionButton("calculate", "Calculate"),
+                    br(),
+                    br(),
+                    textOutput("result")
+                  ),
+                  mainPanel(
+                    br(),
+                    tableOutput("history_table"),
+                    plotOutput("prob_plot")
+                  )
+                )
 )
 
 server <- function(input, output) {
@@ -57,6 +58,18 @@ server <- function(input, output) {
     
     paste("Probability of getting exactly", input$successes_wanted, 
           "of the card:", prob)
+  })
+  
+  output$prob_plot <- renderPlot({
+    if (nrow(history$data) > 0) {
+      barplot(height = history$data$Probability,
+              names.arg = paste("Row", seq_len(nrow(history$data))),
+              xlab = "Calculations",
+              ylab = "Probability",
+              main = "Probabilities of Calculations",
+              col = "skyblue",
+              border = "black")
+    }
   })
 }
 
